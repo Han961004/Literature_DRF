@@ -11,6 +11,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 INSTALLED_APPS = [
     # v1
     'v1.accounts.apps.AccountsConfig',  # 정확히 등록되어 있는지 확인
+    'v1.posts.apps.PostsConfig',
     
     # Base
     'django.contrib.admin',

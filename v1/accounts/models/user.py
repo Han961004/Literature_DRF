@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
 
+
 class UserManager(BaseUserManager):
 
     def create_user(self, username, email, password=None, **extra_fields):
@@ -28,19 +29,14 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
-    password = models.CharField(max_length=128)
-    nickname = models.CharField(max_length=50)
+    password = models.CharField(max_length=128)  # Django 기본 Password 길이
     email = models.EmailField(unique=True)           
-    platform = models.CharField(max_length=10)       
-    subscribe = models.BooleanField(default=False)   
-    last_login = models.DateTimeField(null=True)     
+    last_login = models.DateTimeField(null=True, blank=True)  # AbstractBaseUser에서 제공하는 필드
     date_joined = models.DateTimeField(auto_now_add=True) 
     is_superuser = models.BooleanField(default=False)    
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    first_name = None
-    last_name = None    
-    objects = UserManager()  # Linking the custom manager
+    objects = UserManager()
     
     USERNAME_FIELD = 'username'  # 로그인을 위한 식별자로 사용할 필드
     
