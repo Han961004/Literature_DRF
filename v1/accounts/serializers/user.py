@@ -64,11 +64,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 class UserLoginSerializer(UserSerializer):
     token = serializers.SerializerMethodField()  # 토큰 필드
-    role = serializers.SerializerMethodField()   # 역할 필드
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'nickname', 'email', 'platform', 'role', 'token']
+        fields = ['id', 'username', 'nickname', 'email', 'platform', 'token']
     
     @staticmethod
     def get_token(user):
@@ -76,7 +75,7 @@ class UserLoginSerializer(UserSerializer):
         get or create token
         '''
 
-        token, created = Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user=user) # 토큰 생성
         return token.key
 
 class UserUpdateSerializer(serializers.ModelSerializer):
