@@ -1,31 +1,31 @@
 from rest_framework import serializers
 
 from ...accounts.serializers.user import UserSerializer
-from ..models.post import Post
+from ..models.literature import Literature
 
 
-class PostSerializer(serializers.ModelSerializer):
+class LiteratureSerializer(serializers.ModelSerializer):
     # post_comment_count = serializers.SerializerMethodField()
     user = UserSerializer()
     
     class Meta:
-        model = Post
+        model = Literature
         fields = '__all__'
         
     # @staticmethod
     # def get_post_comment_count(post):
     #     return Post
 
-class PostCreateSerializer(serializers.ModelSerializer):
+class LiteratureCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
-        model = Post
+        model = Literature
         fields = '__all__'
 
-class PostUpdateSerializer(serializers.ModelSerializer):
+class LiteratureUpdateSerializer(serializers.ModelSerializer):
     pass
 
-class PostCommentSerialzier(PostSerializer):
+class LiteratureCommentSerialzier(LiteratureSerializer):
     pass
 

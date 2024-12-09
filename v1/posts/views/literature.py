@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 
-from ..models.post import Post
-from ..serializers.post import PostSerializer, PostCreateSerializer, PostUpdateSerializer
+from ..models.literature import Post
+from ..serializers.literature import PostSerializer, PostCreateSerializer, PostUpdateSerializer
 
 
 class PostView(APIView):
