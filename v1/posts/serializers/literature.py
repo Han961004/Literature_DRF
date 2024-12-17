@@ -1,31 +1,35 @@
 from rest_framework import serializers
 
 from ...accounts.serializers.user import UserSerializer
-from ..models.literature import Literature
+from ..models.literature import LiteraturePost
 
 
 class LiteratureSerializer(serializers.ModelSerializer):
-    # post_comment_count = serializers.SerializerMethodField()
-    user = UserSerializer()
-    
+    # 작성자 정보를 포함하는 시리얼라이저
+    user = UserSerializer(read_only=True)
+    like_count = serializers.SerializerMethodField()
+
     class Meta:
-        model = Literature
+        model = LiteraturePost
         fields = '__all__'
-        
-    # @staticmethod
-    # def get_post_comment_count(post):
-    #     return Post
+
+    @staticmethod
+    def get_like_count(post):
+        '''
+        좋아요 수를 반환합니다.
+        '''
+        return post.like.count()
 
 class LiteratureCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
-        model = Literature
-        fields = '__all__'
+        model = LiteraturePost
+        fields = ['user', 'title', 'content']  # 생성 시 필요한 필드 제한
 
 class LiteratureUpdateSerializer(serializers.ModelSerializer):
-    pass
-
-class LiteratureCommentSerialzier(LiteratureSerializer):
-    pass
-
+    
+    class Meta:
+        model = LiteraturePost
+        fields = ['title', 'content', 'modified_date']  # 수정 가능한 필드
+        read_only_fields = ['modified_date']  # 수정 시 자동 업데이트되는 필드
