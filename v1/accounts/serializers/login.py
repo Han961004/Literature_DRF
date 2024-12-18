@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
 
 from ..models.user import User
 from ..models.profile import Profile
@@ -17,7 +18,9 @@ class LoginSerializer(serializers.Serializer):
         fields = ['email', 'password', 'token']
     
     def validate(self, data):
-        from django.contrib.auth import authenticate
+        '''
+        email 과 password로 사용자 인증
+        '''
         user = authenticate(email=data['email'], password=data['password'])
         if not user:
             raise serializers.ValidationError("Invalid credentials")
