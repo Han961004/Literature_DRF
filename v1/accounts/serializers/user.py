@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-
 from ..models.user import User
 from ..models.profile import Profile
 
@@ -28,17 +28,29 @@ class UserCreateSerializer(serializers.ModelSerializer):
         Profile.objects.create(user=user, nickname=validated_data.get('nickname', 'Default'), platform='web')
         return user
 
-class UserUpdateSerializer(serializers.ModelSerializer):
-    
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    token = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['email', 'password', 'token']
     
-    def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            if attr == 'password':
-                instance.set_password(value)
-            else:
-                setattr(instance, attr, value)
-        instance.save()
-        return instance
+    def validate(self, data):
+        '''
+        email 과 password로 사용자 인증
+        '''
+        user = authenticate(email=data['email'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError("Invalid credentials")
+        self.user = user
+        return data
+    
+    @staticmethod
+    def get_token(user):
+        '''
+        get or create token
+        '''
+        token, created = Token.objects.get_or_create(user=user)
+        return token.key

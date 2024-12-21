@@ -3,9 +3,7 @@ from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-
-from ..models.user import User
-from ..serializers.login import LoginSerializer
+from ..serializers.user import *
 
 
 class LoginView(APIView):
@@ -14,7 +12,7 @@ class LoginView(APIView):
     
     @staticmethod
     def post(request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = UserLoginSerializer(data=request.data)
 
         if serializer.is_valid():
             user = serializer.user

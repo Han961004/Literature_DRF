@@ -15,11 +15,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         fields = ['nickname', 'bio', 'platform']
     
     def update(self, instance, validated_data):
-        # validated_data의 각 키-값 쌍을 순회
-        for attr, value in validated_data.items():
-            # 기존 객체(instance)의 속성(attr)을 새로운 값(value)으로 설정
-            setattr(instance, attr, value)
-        # 데이터베이스에 변경사항 저장
-        instance.save()
-        # 갱신된 객체 반환
+        for attr, value in validated_data.items():  # validated_data의 각 키-값 쌍을 순회
+            setattr(instance, attr, value)          # 기존 객체(instance)의 속성(attr)을 새로운 값(value)으로 설정
+        instance.save()                             # 데이터베이스에 변경사항 저장
         return instance

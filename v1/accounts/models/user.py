@@ -44,6 +44,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)           # 사용자가 최고 관리자인지 나타냄 / 모든 권한 및 DB 작업 가능 및 퍼미션 허용
     is_staff = models.BooleanField(default=False)               # 사용자가 Django Admin 패널에 로그인할 수 있는지 나타냄
     is_active = models.BooleanField(default=True)               # 비/활성화 여부 -> 휴먼 계정
-    objects = UserManager()
     
-    USERNAME_FIELD = 'email'                                    # 필수 요구 사항
+    objects = UserManager()
+    USERNAME_FIELD = 'email'
+
+    class Meta:
+        pass

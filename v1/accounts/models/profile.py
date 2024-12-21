@@ -11,3 +11,6 @@ class Profile(models.Model):
     nickname = models.CharField(max_length=10)
     bio = models.TextField(max_length=50, blank=True)
     platform = models.CharField(max_length=10)
+    
+    class Meta:
+        pass
