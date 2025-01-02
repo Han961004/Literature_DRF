@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.TOKEN }}  # GitHub 토큰을 사용하여 인증
 
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y ssh python3 python3-venv python3-pip git
@@ -28,12 +30,12 @@ jobs:
           cd /home/Literature_DRF || exit 1
 
           # 예시로 Git 리포지토리에서 최신 버전 가져오기
-          git pull origin main
+          git pull https://ghp_${{ secrets.TOKEN }}@github.com/donghk77/Literature_DRF.git
 
           # Python 프로젝트인 경우 가상 환경 활성화 및 의존성 설치
           python3 -m venv venv
           source venv/bin/activate
-          pip install -r requirements.txt
+          pip install -r requirements/base.txt
 
           # 만약 Docker를 사용한다면:
           # docker-compose down
