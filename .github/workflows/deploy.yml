@@ -3,7 +3,7 @@ name: Deploy to AWS
 on:
   push:
     branches:
-      - main  # Run the action on every push to the 'main' branch
+      - main  # main 브랜치에 push 시 실행
 
 jobs:
   deploy:
@@ -16,42 +16,30 @@ jobs:
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y ssh python3 python3-venv python3-pip git
 
-    - name: Setup Python environment
+    - name: Set up Python
       run: |
         python3 -m venv venv
         source venv/bin/activate
         pip install --upgrade pip
+        pip install -r requirements/base.txt  # requirements.txt에 정의된 의존성 설치
 
-    - name: Install project dependencies
+    - name: Run migrations and collectstatic
       run: |
         source venv/bin/activate
-        pip install -r requirements/base.txt  # Install dependencies from your requirements.txt
+        python manage.py migrate  # 데이터베이스 마이그레이션
+        python manage.py collectstatic --noinput  # static 파일 수집
 
-    - name: Run migrations
-      run: |
-        source venv/bin/activate
-        python manage.py migrate  # Apply Django migrations
-
-    - name: Collect static files
-      run: |
-        source venv/bin/activate
-        python manage.py collectstatic --noinput  # Collect static files for deployment
-
-    - name: Deploy to AWS via SSH
+    - name: Deploy to AWS
       uses: appleboy/ssh-action@v0.1.8
       with:
-        host: ${{ secrets.AWS_HOST }}  # EC2 instance host
-        username: ${{ secrets.AWS_USER }}  # SSH user
-        key: ${{ secrets.AWS_SSH_KEY }}  # SSH private key for EC2
-        port: 22
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USER }}
+        key: ${{ secrets.AWS_SSH_KEY }}
         script: |
-          export DB_NAME=Literature  # Set DB_NAME environment variable
-          export DB_USER=postgres  # Set DB_USER environment variable
-          export DB_PASSWORD=0000  # Set DB_PASSWORD environment variable
-          cd /home/Literature_DRF  # Navigate to your project directory
-          source venv/bin/activate  # Activate the virtual environment
-          git pull origin main  # Pull the latest changes from the 'main' branch
-          pip install -r requirements/base.txt  # Install any new dependencies
-          python manage.py migrate  # Run migrations if needed
-          python manage.py collectstatic --noinput  # Collect static files
-          sudo systemctl restart your-web-server.service  # Restart the web server (e.g., Gunicorn, Nginx)
+          cd /home/Literature_DRF  # Django 프로젝트 디렉토리로 이동
+          source venv/bin/activate  # 가상 환경 활성화
+          git pull origin main  # 최신 코드를 pull
+          pip install -r requirements/base.txt  # 의존성 설치
+          python manage.py migrate  # 데이터베이스 마이그레이션
+          python manage.py collectstatic --noinput  # static 파일 수집
+          sudo systemctl restart gunicorn  # 프로세스 재시작 (Gunicorn 사용 예시)
