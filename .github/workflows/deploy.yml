@@ -24,24 +24,29 @@ jobs:
         key: ${{ secrets.AWS_SSH_KEY }}
         port: 22
         script: |
-          # 프로젝트 디렉토리로 이동 또는 생성
+          # 프로젝트 디렉토리로 이동
           if [ ! -d "/home/Literature_DRF" ]; then
             mkdir -p /home/Literature_DRF
           fi
           cd /home/Literature_DRF
-          # Git에서 최신 코드 가져오기
+          
+          # Git 저장소 상태 확인 및 최신 코드 가져오기
           if [ ! -d ".git" ]; then
             git clone https://github.com/Han961004/Literature_DRF.git .
           else
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
           fi
+          
           # 가상환경 설정 및 의존성 설치
           python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements/base.txt
+          
           # Django 마이그레이션 및 정적 파일 수집
           python manage.py migrate
           python manage.py collectstatic --noinput
+          
           # Gunicorn 서비스 재시작
           sudo systemctl restart gunicorn || echo "Gunicorn 서비스가 설정되지 않았습니다."
