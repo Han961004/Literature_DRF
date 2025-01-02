@@ -3,7 +3,7 @@ from .views.literature import *
 
 
 urlpatterns = [
-    path('list/', LiteratureView.as_view()),
-    path('create/', LiteratureCreateView.as_view()),
-    path('detail/', LiteratureDetailView.as_view()),
+    path('v1/posts/', LiteratureView.as_view()),
+    path('v1/posts/create/', LiteratureCreateView.as_view()),
+    path('v1/posts/:id/', LiteratureDetailView.as_view()),
 ]

@@ -9,6 +9,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('v1.accounts.urls')),
     path('', include('v1.posts.urls')),
+    path('', include('v1.comments.urls')),
+    
+    
 ]
 
 if settings.DEBUG:

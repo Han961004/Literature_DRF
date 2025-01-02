@@ -12,6 +12,8 @@ INSTALLED_APPS = [
     # v1
     'v1.accounts.apps.AccountsConfig',  # 정확히 등록되어 있는지 확인
     'v1.posts.apps.PostsConfig',
+    'v1.comments.apps.CommentsConfig',
+    
     
     # Base
     'django.contrib.admin',
@@ -61,6 +63,7 @@ TEMPLATES = [
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.IsAuthenticated',  # 인증된 사용자만 접근 가능
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
