@@ -14,8 +14,8 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y ssh python3 python3-venv
-    
+      run: sudo apt-get update && sudo apt-get install -y ssh python3 python3-venv python3-pip git
+
     - name: Deploy to AWS
       uses: appleboy/ssh-action@v0.1.8
       with:
@@ -35,9 +35,8 @@ jobs:
           
           # Git 저장소 상태 확인 및 최신 코드 가져오기
           if [ ! -d ".git" ]; then
-            git clone https://github.com/Han961004/Literature_DRF.git . 
+            git clone git@github.com:Han961004/Literature_DRF.git .  # SSH를 사용
           else
-            git config --global --add safe.directory /home/Literature_DRF  # Git 디렉토리 안전 설정
             git fetch origin
             git reset --hard origin/main
           fi
