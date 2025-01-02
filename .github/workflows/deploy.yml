@@ -32,13 +32,16 @@ jobs:
           
           # Git 저장소 상태 확인 및 최신 코드 가져오기
           if [ ! -d ".git" ]; then
-            git clone https://github.com/Han961004/Literature_DRF.git .
+            git clone https://github.com/Han961004/Literature_DRF.git . 
           else
             git fetch origin
             git reset --hard origin/main
           fi
           
-          # 가상환경 설정 및 의존성 설치
+          # 기존 가상환경 삭제 및 새로운 가상환경 생성
+          if [ -d "venv" ]; then
+              rm -rf venv
+          fi
           python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
@@ -50,3 +53,6 @@ jobs:
           
           # Gunicorn 서비스 재시작
           sudo systemctl restart gunicorn || echo "Gunicorn 서비스가 설정되지 않았습니다."
+          
+          # 배포가 성공적으로 되었는지 확인 (예: 200 OK 응답)
+          curl -f http://localhost:8000 || echo "배포 후 테스트 실패"
