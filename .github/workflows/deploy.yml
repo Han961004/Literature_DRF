@@ -55,8 +55,9 @@ jobs:
           python3 manage.py migrate
           python3 manage.py collectstatic --noinput
           
-          # Gunicorn 서비스 재시작
+          # Gunicorn 실행 (포트 8000에서)
           sudo systemctl restart gunicorn || echo "Gunicorn 서비스가 설정되지 않았습니다."
           
           # 배포가 성공적으로 되었는지 확인 (예: 200 OK 응답)
+          sleep 5  # 서버 시작 후 잠시 대기
           curl -f http://localhost:8000 || echo "배포 후 테스트 실패"
