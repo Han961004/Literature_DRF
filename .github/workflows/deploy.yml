@@ -9,34 +9,51 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 0000
+          POSTGRES_DB: literature
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready -U postgres" --health-timeout=5s --health-retries=5
+
     steps:
+      # 1. 리포지토리 코드 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. 환경 변수 설정 (GitHub Secrets에서 가져옴)
       - name: Set environment variables from secrets
         run: |
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
           echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
+          echo "DB_HOST=localhost" >> $GITHUB_ENV   # PostgreSQL 서비스가 localhost에서 실행됨
+          echo "DB_PORT=5432" >> $GITHUB_ENV
 
+      # 3. 서버에 필요한 패키지 설치
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ssh python3 python3-venv python3-pip git
 
+      # 4. Python 가상 환경 설정 및 의존성 설치
       - name: Set up Python
         run: |
           python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
-          pip install -r requirements/base.txt
+          pip install -r requirements/base.txt  # 프로젝트 의존성 설치
 
+      # 5. Django 마이그레이션 실행 및 static 파일 수집
       - name: Run migrations and collectstatic
         run: |
           source venv/bin/activate
           python manage.py migrate
           python manage.py collectstatic --noinput
 
+      # 6. AWS 서버에 배포 (SSH로 접속하여 명령 실행)
       - name: Deploy to AWS
         uses: appleboy/ssh-action@v0.1.8
         with:
