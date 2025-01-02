@@ -45,6 +45,9 @@ jobs:
         key: ${{ secrets.AWS_SSH_KEY }}  # SSH private key for EC2
         port: 22
         script: |
+          export DB_NAME=Literature  # Set DB_NAME environment variable
+          export DB_USER=postgres  # Set DB_USER environment variable
+          export DB_PASSWORD=0000  # Set DB_PASSWORD environment variable
           cd /home/Literature_DRF  # Navigate to your project directory
           source venv/bin/activate  # Activate the virtual environment
           git pull origin main  # Pull the latest changes from the 'main' branch
@@ -52,4 +55,3 @@ jobs:
           python manage.py migrate  # Run migrations if needed
           python manage.py collectstatic --noinput  # Collect static files
           sudo systemctl restart your-web-server.service  # Restart the web server (e.g., Gunicorn, Nginx)
-
