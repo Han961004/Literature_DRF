@@ -15,7 +15,7 @@ jobs:
 
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y ssh
-
+    
     - name: Deploy to AWS
       uses: appleboy/ssh-action@v0.1.8
       with:
@@ -26,29 +26,23 @@ jobs:
         script: |
           # 프로젝트 디렉토리로 이동 또는 생성
           if [ ! -d "/home/Literature_DRF" ]; then
-            git clone https://github.com/Han961004/Literature_DRF.git /home/Literature_DRF
+            mkdir -p /home/Literature_DRF
           fi
           cd /home/Literature_DRF
-          
-          # 최신 코드 가져오기
-          git reset --hard  # 로컬 변경 사항 무시
-          git pull origin main
-
-          # 가상환경 설정 및 의존성 설치
-          if [ ! -d "venv" ]; then
-            python3 -m venv venv  # 가상환경이 없다면 생성
+          # Git에서 최신 코드 가져오기
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/Han961004/Literature_DRF.git .
+          else
+            git reset --hard  # 로컬 변경 사항 무시
+            git pull origin main
           fi
+          # 가상환경 설정 및 의존성 설치
+          python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements/base.txt
-
           # Django 마이그레이션 및 정적 파일 수집
           python manage.py migrate
           python manage.py collectstatic --noinput
-
           # Gunicorn 서비스 재시작
-          sudo systemctl daemon-reload  # gunicorn 설정이 변경되었으면 데몬을 리로드
           sudo systemctl restart gunicorn || echo "Gunicorn 서비스가 설정되지 않았습니다."
-          
-          # 필요시 gunicorn 상태 확인
-          sudo systemctl status gunicorn
