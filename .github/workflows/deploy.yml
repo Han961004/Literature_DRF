@@ -1,3 +1,4 @@
+# GitHub Actions 워크플로우 파일 예시
 name: Deploy to AWS
 
 on:
@@ -15,7 +16,7 @@ jobs:
 
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y ssh
-    
+
     - name: Deploy to AWS
       uses: appleboy/ssh-action@v0.1.8
       with:
@@ -24,35 +25,7 @@ jobs:
         key: ${{ secrets.AWS_SSH_KEY }}
         port: 22
         script: |
-          # 프로젝트 디렉토리로 이동
-          if [ ! -d "/home/Literature_DRF" ]; then
-            mkdir -p /home/Literature_DRF
-          fi
-          cd /home/Literature_DRF
-          
-          # Git 저장소 상태 확인 및 최신 코드 가져오기
-          if [ ! -d ".git" ]; then
-            git clone https://github.com/Han961004/Literature_DRF.git . 
-          else
-            git fetch origin
-            git reset --hard origin/main
-          fi
-          
-          # 기존 가상환경 삭제 및 새로운 가상환경 생성
-          if [ -d "venv" ]; then
-              rm -rf venv
-          fi
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements/base.txt
-          
-          # Django 마이그레이션 및 정적 파일 수집
-          python manage.py migrate
-          python manage.py collectstatic --noinput
-          
-          # Gunicorn 서비스 재시작
-          sudo systemctl restart gunicorn || echo "Gunicorn 서비스가 설정되지 않았습니다."
-          
-          # 배포가 성공적으로 되었는지 확인 (예: 200 OK 응답)
-          curl -f http://localhost:8000 || echo "배포 후 테스트 실패"
+          # Git 상태 확인 및 최신 코드 가져오기
+          git fetch origin
+          git reset --hard origin/main
+          # 나머지 배포 작업 (가상환경, 마이그레이션 등)
