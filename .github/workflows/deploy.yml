@@ -3,7 +3,7 @@ name: Deploy to AWS
 on:
   push:
     branches:
-      - main  # main 브랜치에 push 시 실행
+      - main  # Run the action on every push to the 'main' branch
 
 jobs:
   deploy:
@@ -16,39 +16,40 @@ jobs:
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y ssh python3 python3-venv python3-pip git
 
-    - name: Deploy to AWS
+    - name: Setup Python environment
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+
+    - name: Install project dependencies
+      run: |
+        source venv/bin/activate
+        pip install -r requirements.txt  # Install dependencies from your requirements.txt
+
+    - name: Run migrations
+      run: |
+        source venv/bin/activate
+        python manage.py migrate  # Apply Django migrations
+
+    - name: Collect static files
+      run: |
+        source venv/bin/activate
+        python manage.py collectstatic --noinput  # Collect static files for deployment
+
+    - name: Deploy to AWS via SSH
       uses: appleboy/ssh-action@v0.1.8
       with:
-        host: ${{ secrets.AWS_HOST }}
-        username: ${{ secrets.AWS_USER }}
-        key: ${{ secrets.AWS_SSH_KEY }}
+        host: ${{ secrets.AWS_HOST }}  # EC2 instance host
+        username: ${{ secrets.AWS_USER }}  # SSH user
+        key: ${{ secrets.AWS_SSH_KEY }}  # SSH private key for EC2
         port: 22
         script: |
-          # 서버로 접속 후 실행할 스크립트
-          cd /home/Literature_DRF || exit 1
+          cd /path/to/your/django/project  # Navigate to your project directory
+          source venv/bin/activate  # Activate the virtual environment
+          git pull origin main  # Pull the latest changes from the 'main' branch
+          pip install -r requirements.txt  # Install any new dependencies
+          python manage.py migrate  # Run migrations if needed
+          python manage.py collectstatic --noinput  # Collect static files
+          sudo systemctl restart your-web-server.service  # Restart the web server (e.g., Gunicorn, Nginx)
 
-          # Git 리포지토리에서 최신 버전 가져오기 (퍼블릭 레포지토리라 인증 없이 가능)
-          git pull https://github.com/donghk77/Literature_DRF.git
-
-          # Python 가상 환경 설정 (필요한 패키지 설치)
-          sudo apt-get install -y python3-venv python3-full
-
-          # 기존 가상 환경 삭제 후 새로 생성
-          rm -rf venv
-          python3 -m venv venv
-          source venv/bin/activate
-
-          # pip 최신 버전으로 업데이트
-          pip install --upgrade pip
-
-          # 필요한 패키지 설치
-          pip install -r requirements/base.txt
-
-          # 만약 Docker를 사용한다면:
-          # docker-compose down
-          # docker-compose up -d --build
-
-          # Python 애플리케이션 실행 예시
-          # python app.py
-
-          # 추가적인 서버 작업이 필요하다면 여기서 진행
